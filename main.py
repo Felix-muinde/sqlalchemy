@@ -16,7 +16,7 @@ class Restaurant(Base):
     reviews = relationship('Review', back_populates='restaurant')
     
     # Define the many-to-many relationship with Customer
-    customers = relationship('Customer', secondary='reviews', overlaps='restaurants')
+    customers = relationship('Customer', secondary='reviews', viewonly=True)
 
 class Customer(Base):
     __tablename__ = 'customers'
@@ -29,7 +29,7 @@ class Customer(Base):
     reviews = relationship('Review', back_populates='customer')
     
     # Define the many-to-many relationship with Restaurant
-    restaurants = relationship('Restaurant', secondary='reviews', overlaps='customers')
+    restaurants = relationship('Restaurant', secondary='reviews', viewonly=True)
 
 class Review(Base):
     __tablename__ = 'reviews'
@@ -40,10 +40,16 @@ class Review(Base):
     star_rating = Column(Integer)
     
     # Define the many-to-one relationship with Customer
-    customer = relationship('Customer', back_populates='reviews')
+    customer = relationship('Customer', back_populates='reviews', viewonly=True)
     
     # Define the many-to-one relationship with Restaurant
-    restaurant = relationship('Restaurant', back_populates='reviews', overlaps='customers')
+    restaurant = relationship('Restaurant', back_populates='reviews', viewonly=True)
     
     def full_review(self):
         return f"Review for {self.restaurant.name} by {self.customer.full_name()}: {self.star_rating} stars"
+
+# Create a SQLite database engine
+engine = create_engine('sqlite:///Felix_database.db')
+
+# Create the tables
+Base.metadata.create_all(engine)
